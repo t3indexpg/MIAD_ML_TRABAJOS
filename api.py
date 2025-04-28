@@ -11,7 +11,7 @@ Original file is located at
 from flask import Flask
 from flask_restx import Api, Resource, fields
 import joblib
-from lr_api import y_pred
+from lr_api import evaluar_modelo
 
 app = Flask(__name__)
 
