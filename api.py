@@ -17,7 +17,7 @@ from sklearn.model_selection import train_test_split
 # Cargar el modelo entrenado
 modelo = joblib.load('modelo_lr.pkl')
 
-# Cargar los datos originales para recrear el conjunto de prueba
+# Cargar datos originales
 dataTraining = pd.read_csv('https://raw.githubusercontent.com/davidzarruk/MIAD_ML_NLP_2025/main/datasets/dataTrain_Spotify.csv')
 
 # Variables que usa el modelo
@@ -67,11 +67,11 @@ def predict():
 @app.route('/predict_validation', methods=['GET'])
 def predict_validation():
     try:
-        # Tomar dos observaciones del conjunto de prueba
+        # Buscar y traer dos obsv
         validation_samples = X_test.iloc[:2].copy()
         actual_values = y_test.iloc[:2].copy()
         
-        # Hacer predicciones sobre estas observaciones
+        # Predecir sobre estas observaciones
         predicciones = modelo.predict(validation_samples)
         
         # Preparar respuesta con las observaciones y sus predicciones
