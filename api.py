@@ -47,36 +47,33 @@ def predict():
     # Devolver las predicciones
     return json.dumps({'predicted_popularity': predicciones.tolist()}), 200, {'Content-Type': 'application/json'}
 
-@app.route('/predict_validation', methods=['GET'])
-def predict_validation():
-    try:
-        # Cargar datos de prueba
-        dataTesting = pd.read_csv('https://raw.githubusercontent.com/davidzarruk/MIAD_ML_NLP_2025/main/datasets/dataTest_Spotify.csv', index_col=0)
-        
-        # Seleccionar las características necesarias
-        X_test = dataTesting[selected_features]
-        
-        # Tomar dos observaciones del conjunto de prueba para la validación
-        validation_samples = X_test.iloc[:2].copy()
-        
-        # Hacer predicciones sobre estas observaciones
-        predicciones = modelo.predict(validation_samples)
-        
-        # Preparar respuesta con las observaciones y sus predicciones
-        resultados = []
-        for i in range(len(validation_samples)):
-            resultados.append({
-                'observation': validation_samples.iloc[i].to_dict(),
-                'predicted_popularity': float(predicciones[i])
-            })
-        
-        return json.dumps({
-            'validation_predictions': resultados,
-            'message': 'Predicciones realizadas sobre 2 observaciones del conjunto de validación'
-        }), 200, {'Content-Type': 'application/json'}
+@app.route('/predict_Var2', methods=['GET'])
+def predict_Var2():
+    # Cargar datos de prueba
+    dataTesting = pd.read_csv('https://raw.githubusercontent.com/davidzarruk/MIAD_ML_NLP_2025/main/datasets/dataTest_Spotify.csv', index_col=0)
     
-    except Exception as e:
-        return json.dumps({'error': str(e)}), 500, {'Content-Type': 'application/json'}
+    # Seleccionar las características necesarias
+    X_test = dataTesting[selected_features]
+    
+    # Tomar dos observaciones del conjunto de prueba para la validación
+    validation_samples = X_test.iloc[:2].copy()
+    
+    # Hacer predicciones sobre estas observaciones
+    predicciones = modelo.predict(validation_samples)
+    
+    # Preparar respuesta con las observaciones y sus predicciones
+    resultados = []
+    for i in range(len(validation_samples)):
+        resultados.append({
+            'observation': validation_samples.iloc[i].to_dict(),
+            'predicted_popularity': float(predicciones[i])
+        })
+    
+    return json.dumps({
+        'validation_predictions': resultados,
+        'message': 'Predicciones realizadas sobre 2 observaciones del conjunto de validación'
+    }), 200, {'Content-Type': 'application/json'}
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
