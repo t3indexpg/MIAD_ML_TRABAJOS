@@ -7,8 +7,6 @@ Original file is located at
     https://colab.research.google.com/drive/1TvriatVKr_Zkck6vGeCllC-X1epKW9Uk
 """
 
-import warnings
-warnings.filterwarnings('ignore')
 
 # Importación librerías
 import pandas as pd
