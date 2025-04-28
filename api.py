@@ -11,7 +11,7 @@ Original file is located at
 from flask import Flask
 from flask_restx import Api, Resource, fields
 import joblib
-from m09_model_deployment import predict_proba
+from lr_api import y_pred
 
 app = Flask(__name__)
 
