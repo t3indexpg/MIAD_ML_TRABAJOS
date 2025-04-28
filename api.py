@@ -8,8 +8,7 @@ Original file is located at
 """
 
 #!/usr/bin/python
-from flask import Flask
-from flask_restx import Api, Resource, fields
+from flask import Flask, request
 import joblib
 import pandas as pd
 
@@ -25,43 +24,35 @@ selected_features = [
     'instrumentalness',
 ]
 
-# Crear la app
 app = Flask(__name__)
-api = Api(app, version='1.0', title='Spotify Popularity API', description='Predice la popularidad de una canción')
 
-# Crear namespace
-ns = api.namespace('predict', description='Predicción de popularidad')
+@app.route('/predict', methods=['GET'])
+def predict():
+    # Recibir los parámetros de la URL (query parameters)
+    acousticness = request.args.get('acousticness', type=float)
+    danceability = request.args.get('danceability', type=float)
+    energy = request.args.get('energy', type=float)
+    loudness = request.args.get('loudness', type=float)
+    instrumentalness = request.args.get('instrumentalness', type=float)
 
-# Definir el modelo de entrada
-input_model = api.model('InputData', {
-    'acousticness': fields.Float(required=True, description='Acousticness de la canción'),
-    'danceability': fields.Float(required=True, description='Danceability de la canción'),
-    'energy': fields.Float(required=True, description='Energy de la canción'),
-    'loudness': fields.Float(required=True, description='Loudness de la canción'),
-    'instrumentalness': fields.Float(required=True, description='Instrumentalness de la canción'),
-})
 
-# Definir el modelo de respuesta
-response_model = api.model('Prediction', {
-    'predicted_popularity': fields.Float,
-})
+    # Crear un DataFrame con los valores recibidos
+    X_new = pd.DataFrame({
+        'acousticness': [acousticness],
+        'danceability': [danceability],
+        'energy': [energy],
+        'loudness': [loudness],
+        'instrumentalness': [instrumentalness],
+    })
 
-@ns.route('/')
-class PopularityPredictor(Resource):
-    @api.expect(input_model)
-    @api.marshal_with(response_model)
-    def post(self):
-        data = api.payload
+    # Hacer la predicción
+    predicciones = modelo.predict(X_new)
 
-        # Convertir a DataFrame
-        X_new = pd.DataFrame([data], columns=selected_features)
-
-        # Hacer la predicción
-        pred = modelo.predict(X_new)[0]
-
-        return {'predicted_popularity': pred}
+    # Devolver las predicciones
+    return jsonify({'predicted_popularity': predicciones.tolist()})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
+
 
 
