@@ -12,9 +12,13 @@ from flask import Flask, request
 import joblib
 import pandas as pd
 import json
+from sklearn.model_selection import train_test_split
 
 # Cargar el modelo entrenado
 modelo = joblib.load('modelo_lr.pkl')
+
+# Cargar los datos originales para recrear el conjunto de prueba
+dataTraining = pd.read_csv('https://raw.githubusercontent.com/davidzarruk/MIAD_ML_NLP_2025/main/datasets/dataTrain_Spotify.csv')
 
 # Variables que usa el modelo
 selected_features = [
@@ -24,6 +28,11 @@ selected_features = [
     'loudness',
     'instrumentalness',
 ]
+
+# Recrear la división de datos de entrenamiento y prueba
+X = dataTraining[selected_features]
+y = dataTraining['popularity']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
 
 app = Flask(__name__)
 
@@ -54,6 +63,33 @@ def predict():
     
     # Devolver las predicciones
     return json.dumps({'predicted_popularity': predicciones.tolist()}), 200, {'Content-Type': 'application/json'}
+
+@app.route('/predict_validation', methods=['GET'])
+def predict_validation():
+    try:
+        # Tomar dos observaciones del conjunto de prueba
+        validation_samples = X_test.iloc[:2].copy()
+        actual_values = y_test.iloc[:2].copy()
+        
+        # Hacer predicciones sobre estas observaciones
+        predicciones = modelo.predict(validation_samples)
+        
+        # Preparar respuesta con las observaciones y sus predicciones
+        resultados = []
+        for i in range(len(validation_samples)):
+            resultados.append({
+                'observation': validation_samples.iloc[i].to_dict(),
+                'predicted_popularity': float(predicciones[i]),
+                'actual_popularity': float(actual_values.iloc[i])
+            })
+        
+        return json.dumps({
+            'validation_predictions': resultados,
+            'message': 'Predicciones realizadas sobre 2 observaciones del conjunto de validación'
+        }), 200, {'Content-Type': 'application/json'}
+    
+    except Exception as e:
+        return json.dumps({'error': str(e)}), 500, {'Content-Type': 'application/json'}
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
