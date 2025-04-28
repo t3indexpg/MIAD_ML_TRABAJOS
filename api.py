@@ -64,7 +64,7 @@ def predict():
     # Devolver las predicciones
     return json.dumps({'predicted_popularity': predicciones.tolist()}), 200, {'Content-Type': 'application/json'}
 
-@app.route('/predict_validation', methods=['GET'])
+@app.route('/predict', methods=['GET'])
 def predict_validation():
     try:
         # Buscar y traer dos obsv
