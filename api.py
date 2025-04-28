@@ -11,45 +11,57 @@ Original file is located at
 from flask import Flask
 from flask_restx import Api, Resource, fields
 import joblib
-from lr_api_ import evaluar_modelo
+import pandas as pd
 
+# Cargar el modelo entrenado
+modelo = joblib.load('modelo_lr.pkl')
+
+# Variables que usa el modelo
+selected_features = [
+    'acousticness',
+    'danceability',
+    'energy',
+    'loudness',
+    'instrumentalness',
+]
+
+# Crear la app
 app = Flask(__name__)
+api = Api(app, version='1.0', title='Spotify Popularity API', description='Predice la popularidad de una canción')
 
-api = Api(
-    app,
-    version='1.0',
-    title='Phishing Prediction API',
-    description='Phishing Prediction API')
+# Crear namespace
+ns = api.namespace('predict', description='Predicción de popularidad')
 
-ns = api.namespace('predict',
-     description='Phishing Classifier')
+# Definir el modelo de entrada
+input_model = api.model('InputData', {
+    'acousticness': fields.Float(required=True, description='Acousticness de la canción'),
+    'danceability': fields.Float(required=True, description='Danceability de la canción'),
+    'energy': fields.Float(required=True, description='Energy de la canción'),
+    'loudness': fields.Float(required=True, description='Loudness de la canción'),
+    'instrumentalness': fields.Float(required=True, description='Instrumentalness de la canción'),
+})
 
-parser = api.parser()
-
-parser.add_argument(
-    'URL',
-    type=str,
-    required=True,
-    help='URL to be analyzed',
-    location='args')
-
-resource_fields = api.model('Resource', {
-    'result': fields.String,
+# Definir el modelo de respuesta
+response_model = api.model('Prediction', {
+    'predicted_popularity': fields.Float,
 })
 
 @ns.route('/')
-class PhishingApi(Resource):
+class PopularityPredictor(Resource):
+    @api.expect(input_model)
+    @api.marshal_with(response_model)
+    def post(self):
+        data = api.payload
 
-    @api.doc(parser=parser)
-    @api.marshal_with(resource_fields)
-    def get(self):
-        args = parser.parse_args()
+        # Convertir a DataFrame
+        X_new = pd.DataFrame([data], columns=selected_features)
 
-        return {
-         "result": predict_proba(args['URL'])
-        }, 200
+        # Hacer la predicción
+        pred = modelo.predict(X_new)[0]
 
+        return {'predicted_popularity': pred}
 
 if __name__ == '__main__':
-    app.run(debug=True, use_reloader=False, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)
+
 
