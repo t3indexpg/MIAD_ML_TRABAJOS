@@ -11,6 +11,7 @@ Original file is located at
 from flask import Flask, request
 import joblib
 import pandas as pd
+import json
 
 # Cargar el modelo entrenado
 modelo = joblib.load('modelo_lr.pkl')
@@ -34,8 +35,11 @@ def predict():
     energy = request.args.get('energy', type=float)
     loudness = request.args.get('loudness', type=float)
     instrumentalness = request.args.get('instrumentalness', type=float)
-
-
+    
+    # Verificar si todos los parámetros fueron recibidos
+    if None in [acousticness, danceability, energy, loudness, instrumentalness]:
+        return json.dumps({"error": "Faltan parámetros"}), 400, {'Content-Type': 'application/json'}
+    
     # Crear un DataFrame con los valores recibidos
     X_new = pd.DataFrame({
         'acousticness': [acousticness],
@@ -44,15 +48,14 @@ def predict():
         'loudness': [loudness],
         'instrumentalness': [instrumentalness],
     })
-
+    
     # Hacer la predicción
     predicciones = modelo.predict(X_new)
-
+    
     # Devolver las predicciones
-    return jsonify({'predicted_popularity': predicciones.tolist()})
+    return json.dumps({'predicted_popularity': predicciones.tolist()}), 200, {'Content-Type': 'application/json'}
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
-
 
 
