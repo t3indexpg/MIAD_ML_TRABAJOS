@@ -10,7 +10,6 @@ modelo_ = joblib.load('modelo_logistic_regr.pkl')
 modelo = modelo_['modelo']
 vectorizer = modelo_['vectorizer']
 mlb = modelo_['mlb']
-generos = mlb.inverse_transform(predicciones)
 
 
 app = Flask(__name__)
@@ -29,6 +28,7 @@ def predict_Var2():
     
     # Hacer predicciones sobre las observaciones vectorizadas
     predicciones = modelo.predict(X_test_vectorized)
+    generos = mlb.inverse_transform(predicciones)
     
     # Preparar respuesta
     resultados = []
