@@ -28,14 +28,14 @@ def predict_Var2():
     
     # Hacer predicciones sobre las observaciones vectorizadas
     predicciones = modelo.predict(X_test_vectorized)
-    generos = mlb.inverse_transform(predicciones)
+    generos_predichos = mlb.inverse_transform(predicciones)
     
     # Preparar respuesta
     resultados = []
     for i in range(len(plots)):
         resultados.append({
             'plot': plots.iloc[i],
-            'predicted_genres': generos[i].tolist()  
+            'predicted_genres': list(generos_predichos[i])
         })
 
     return json.dumps({
