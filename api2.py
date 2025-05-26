@@ -40,3 +40,6 @@ def predict_Var2():
         'validation_predictions': resultados,
         'message': 'Predicciones realizadas sobre 5 observaciones del conjunto de validación'
     }), 200, {'Content-Type': 'application/json'}
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)
