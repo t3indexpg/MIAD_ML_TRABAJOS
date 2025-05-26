@@ -16,7 +16,7 @@ app = Flask(__name__)
 def predict_Var2():
     # Cargar datos de prueba
     dataTesting = pd.read_csv('https://github.com/albahnsen/MIAD_ML_and_NLP/raw/main/datasets/dataTesting.zip', encoding='UTF-8', index_col=0)
-  
+    X_test = dataTesting  
     
     # Tomar dos observaciones del conjunto de prueba para la validación
     validation_samples = X_test.iloc[:5].copy()
