@@ -6,7 +6,9 @@ import pandas as pd
 import json
 
 # Cargar el modelo entrenado
-modelo = joblib.load('modelo_logistic_regr.pkl')
+modelo_ = joblib.load('modelo_logistic_regr.pkl')
+modelo = modelo_['modelo']
+vectorizer = modelo_['vectorizer']
 
 
 app = Flask(__name__)
@@ -16,27 +18,25 @@ app = Flask(__name__)
 def predict_Var2():
     # Cargar datos de prueba
     dataTesting = pd.read_csv('https://github.com/albahnsen/MIAD_ML_and_NLP/raw/main/datasets/dataTesting.zip', encoding='UTF-8', index_col=0)
-    X_test = dataTesting  
+
+    # Tomar observaciones del conjunto de prueba
+    plots = dataTesting['plot'].iloc[:5].copy()
     
-    # Tomar dos observaciones del conjunto de prueba para la validación
-    validation_samples = X_test.iloc[:5].copy()
+    # Vectorizar los textos de prueba
+    X_test_vectorized = vectorizer.transform(plots)
     
-    # Hacer predicciones sobre estas observaciones
-    predicciones = modelo.predict(validation_samples)
+    # Hacer predicciones sobre las observaciones vectorizadas
+    predicciones = modelo.predict(X_test_vectorized)
     
-    # Preparar respuesta con las observaciones y sus predicciones
+    # Preparar respuesta
     resultados = []
-    for i in range(len(validation_samples)):
+    for i in range(len(plots)):
         resultados.append({
-            'observation': validation_samples.iloc[i].to_dict(),
-            'predicted_popularity': float(predicciones[i])
+            'plot': plots.iloc[i],
+            'predicted_genres': predicciones[i].tolist()  # puedes convertirlo a nombres reales si deseas
         })
-    
+
     return json.dumps({
         'validation_predictions': resultados,
-        'message': 'Predicciones realizadas sobre 2 observaciones del conjunto de validación'
+        'message': 'Predicciones realizadas sobre 5 observaciones del conjunto de validación'
     }), 200, {'Content-Type': 'application/json'}
-
-
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
