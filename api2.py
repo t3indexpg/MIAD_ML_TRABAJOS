@@ -33,7 +33,7 @@ def predict_Var2():
     for i in range(len(plots)):
         resultados.append({
             'plot': plots.iloc[i],
-            'predicted_genres': predicciones[i].tolist()  # puedes convertirlo a nombres reales si deseas
+            'predicted_genres': predicciones[i].tolist()  
         })
 
     return json.dumps({
