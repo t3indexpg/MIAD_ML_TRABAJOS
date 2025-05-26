@@ -9,6 +9,8 @@ import json
 modelo_ = joblib.load('modelo_logistic_regr.pkl')
 modelo = modelo_['modelo']
 vectorizer = modelo_['vectorizer']
+mlb = modelo_['mlb']
+generos = mlb.inverse_transform(predicciones)
 
 
 app = Flask(__name__)
@@ -33,7 +35,7 @@ def predict_Var2():
     for i in range(len(plots)):
         resultados.append({
             'plot': plots.iloc[i],
-            'predicted_genres': predicciones[i].tolist()  
+            'predicted_genres': generos[i].tolist()  
         })
 
     return json.dumps({
